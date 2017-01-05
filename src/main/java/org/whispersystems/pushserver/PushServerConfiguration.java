@@ -5,6 +5,7 @@ import org.whispersystems.pushserver.config.ApnConfiguration;
 import org.whispersystems.pushserver.config.AuthenticationConfiguration;
 import org.whispersystems.pushserver.config.GcmConfiguration;
 import org.whispersystems.pushserver.config.RedisConfiguration;
+import org.whispersystems.pushserver.config.CCSMConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -30,6 +31,10 @@ public class PushServerConfiguration extends Configuration {
   @JsonProperty
   @Valid
   private GcmConfiguration gcm;
+
+  @JsonProperty
+  @Valid
+  private CCSMConfiguration ccsm;
   
   public AuthenticationConfiguration getAuthenticationConfiguration() {
     return authentication;
@@ -45,5 +50,9 @@ public class PushServerConfiguration extends Configuration {
 
   public GcmConfiguration getGcmConfiguration() {
     return gcm;
+  }
+
+  public CCSMConfiguration getCCSMConfiguration() {
+    return ccsm;
   }
 }

@@ -9,12 +9,14 @@ import org.whispersystems.pushserver.auth.Server;
 import org.whispersystems.pushserver.auth.ServerAuthenticator;
 import org.whispersystems.pushserver.config.ApnConfiguration;
 import org.whispersystems.pushserver.config.GcmConfiguration;
+import org.whispersystems.pushserver.config.CCSMConfiguration;
 import org.whispersystems.pushserver.controllers.FeedbackController;
 import org.whispersystems.pushserver.controllers.PushController;
 import org.whispersystems.pushserver.providers.RedisClientFactory;
 import org.whispersystems.pushserver.providers.RedisHealthCheck;
 import org.whispersystems.pushserver.senders.APNSender;
 import org.whispersystems.pushserver.senders.GCMSender;
+import org.whispersystems.pushserver.senders.CCSMSender;
 import org.whispersystems.pushserver.senders.HttpGCMSender;
 import org.whispersystems.pushserver.senders.UnregisteredQueue;
 import org.whispersystems.pushserver.senders.XmppGCMSender;
@@ -53,11 +55,12 @@ public class PushServer extends Application<PushServerConfiguration> {
     UnregisteredQueue   gcmQueue            = new UnregisteredQueue(redisClient, environment.getObjectMapper(), servers, "gcm");
     ApnConfiguration    apnConfig           = config.getApnConfiguration();
     GcmConfiguration    gcmConfig           = config.getGcmConfiguration();
+    CCSMConfiguration   ccsmConfig          = config.getCcsmConfiguration();
     APNSender           apnSender           = null;
     GCMSender           gcmSender           = null;
 
-    if (apnConfig == null && gcmConfig == null) {
-      throw new RuntimeException("APN and GCM config missing; At least 1 is required.");
+    if (apnConfig == null && gcmConfig == null && ccsmConfig == null) {
+      throw new RuntimeException("APN and GCM and CCSM config missing; At least 1 is required.");
     }
     if (apnConfig != null) {
       apnSender = initializeApnSender(redisClient, apnQueue, apnConfig);
@@ -77,6 +80,11 @@ public class PushServer extends Application<PushServerConfiguration> {
     environment.jersey().register(new FeedbackController(gcmQueue, apnQueue));
 
     environment.healthChecks().register("Redis", new RedisHealthCheck(redisClient));
+  }
+
+  private CCSMSender initializeCCSMSender()
+  {
+      return new CCSMSender()
   }
 
   private APNSender initializeApnSender(JedisPool redisClient,
